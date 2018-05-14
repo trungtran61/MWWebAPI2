@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using MWWebAPI2.Models;
 using static MWWebAPI2.Models.SecurityModels;
 
@@ -12,14 +16,16 @@ namespace MWWebAPI2.DBRepository
 {
     public class DBSecurityRepository : DBRepositoryBase, IDisposable
     {
-        //private AppSettings appSettings;        
-        public DBSecurityRepository(string _securityConnectionString)
+        private AppSettings appSettings;
+        public DBSecurityRepository(AppSettings _appSettings)
         {
-            securityConnectionString = _securityConnectionString;
+            appSettings = _appSettings;
+            securityConnectionString = appSettings.SecurityConnectionString;
         }
         private static string securityConnectionString;
         public UserAuth ValidateUser(UserAuthRequest userAuthRequest)
         {
+            User user = new User();
             UserAuth userAuth = new UserAuth();
 
             using (SqlConnection con = new SqlConnection(securityConnectionString))
@@ -34,14 +40,20 @@ namespace MWWebAPI2.DBRepository
 
                     if (reader.Read())
                     {
-                        userAuth.userName = reader["UserName"].ToString();
-                        userAuth.firstName = reader["firstName"].ToString();
-                        userAuth.email = reader["Email"].ToString();
-                        userAuth.permissions = reader["Permissions"].ToString().Split(',').ToList();
-                        userAuth.isAuthenticated = true;
+                        user.id = Convert.ToInt16(reader["Id"].ToString());
+                        user.userName = reader["UserName"].ToString();
+                        user.firstName = reader["firstName"].ToString();
+                        user.email = reader["Email"].ToString();
+                        user.permissions = reader["Permissions"].ToString();
                     }
                 }
                 con.Close();
+            }
+
+            if (user != null)
+            {
+                // Build User Security Object
+                userAuth = BuildUserAuthObject(user);
             }
             return userAuth;
         }
@@ -496,6 +508,69 @@ namespace MWWebAPI2.DBRepository
             {
                 throw;
             }
+        }
+
+        protected List<UserClaim> GetUserClaims(User user)
+        {
+            List<UserClaim> userClaims = new List<UserClaim>();
+            List<string> lstPermissions = user.permissions.Split(',').ToList();
+
+            foreach (string permision in lstPermissions)
+            {
+                userClaims.Add(
+                    new UserClaim
+                    {
+                        claimType = permision,
+                        claimValue = "True"
+                    }
+                );
+            }
+
+            return userClaims;
+        }
+
+        protected UserAuth BuildUserAuthObject(User authUser)
+        {
+            UserAuth ret = new UserAuth();
+            List<UserClaim> claims = new List<UserClaim>();
+            ret.id = authUser.id;
+            ret.userName = authUser.userName;
+            ret.firstName = authUser.firstName;
+            ret.isAuthenticated = true;
+            ret.claims = GetUserClaims(authUser);
+            ret.bearerToken = BuildJwtToken(ret);
+            return ret;
+        }
+        protected string BuildJwtToken(UserAuth authUser)
+        {
+            SymmetricSecurityKey key = new SymmetricSecurityKey(
+              Encoding.UTF8.GetBytes(appSettings.JWTKey));
+
+            // Create standard JWT claims
+            List<Claim> jwtClaims = new List<Claim>();
+            jwtClaims.Add(new Claim(JwtRegisteredClaimNames.Sub, authUser.userName));
+            jwtClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+
+            // Add custom claims
+            foreach (var claim in authUser.claims)
+            {
+                jwtClaims.Add(new Claim(claim.claimType, claim.claimValue));
+            }
+
+            // Create the JwtSecurityToken object
+            var token = new JwtSecurityToken(
+              issuer: appSettings.JWTIssuer,
+              audience: appSettings.JWTAudience,
+              claims: jwtClaims,
+              notBefore: DateTime.UtcNow,
+              expires: DateTime.UtcNow.AddMinutes(
+                  appSettings.JWTMinutesToExpiration),
+              signingCredentials: new SigningCredentials(key,
+                          SecurityAlgorithms.HmacSha256)
+            );
+
+            // Create a string representation of the Jwt token
+            return new JwtSecurityTokenHandler().WriteToken(token); ;
         }
 
         public void Dispose()

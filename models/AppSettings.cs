@@ -6,6 +6,7 @@ public class AppSettings
     public string JWTIssuer { get; set; }
     public string JWTAudience { get; set; }
     public int JWTMinutesToExpiration { get; set; }
+     public string ClientUrl { get; set; }
     public string ImageUrl { get; set; }
     public string ImageLibrary { get; set; }
     public string UnprovenProgramsPath { get; set; }

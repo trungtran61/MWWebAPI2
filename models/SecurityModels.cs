@@ -13,7 +13,7 @@ namespace MWWebAPI2.Models
             public string password { get; set; }
         }
 
-        public class Claim
+        public class UserClaim
         {
             public string claimType { get; set; }
             public string claimValue { get; set; }
@@ -34,13 +34,14 @@ namespace MWWebAPI2.Models
                 userName = "Not Authorized";
                 bearerToken = string.Empty;
             }
+            public int id { get; set; }
             public string userName { get; set; }
             public string bearerToken { get; set; }
             public bool isAuthenticated { get; set; }
             public string firstName { get; set; }
             public string email { get; set; }
             public List<string> permissions { get; set; }
-            public List<Claim> claims { get; set; }
+            public List<UserClaim> claims { get; set; }
         }
 
         public class User

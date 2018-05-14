@@ -13,15 +13,17 @@ using Microsoft.AspNetCore.Authorization;
 namespace MWWebAPI2.Controllers
 {
     [Route("api/security")]
+    [Authorize]
     public class SecurityController : BaseApiController
     {
-        private static string conn;        
+        private static string conn;    
         public SecurityController(AppSettings _appSettings)
         {
-            conn = _appSettings.SecurityConnectionString;
-            securityInventoryRepo = new DBSecurityRepository(conn);
+            appSettings = _appSettings;
+            conn = appSettings.SecurityConnectionString;            
+            securityInventoryRepo = new DBSecurityRepository(appSettings);
         }
-        private static AppSettings _appSettings;
+        private static AppSettings appSettings;
         DBSecurityRepository securityInventoryRepo = null;
 
         [Route("GetUsers")]
@@ -135,7 +137,8 @@ namespace MWWebAPI2.Controllers
             return StatusCode(StatusCodes.Status200OK, permission);
         }
 
-        [HttpPost]
+        [Route("ValidateUser")]
+        [HttpPost]         
         public IActionResult ValidateUser([FromBody]SecurityModels.UserAuthRequest userAuthRequest)
         {
             SecurityModels.UserAuth userAuth = new SecurityModels.UserAuth();
