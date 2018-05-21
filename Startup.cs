@@ -125,6 +125,7 @@ namespace MWWebAPI2
             settings.MWConnectionString = Configuration["ConnectionStrings:MachineWorkCS"];
             settings.SecurityConnectionString = Configuration["ConnectionStrings:SecurityCS"];
             settings.ImageUrl = Configuration["AppSettings:ImageUrl"];
+            settings.ImageLibrary = Configuration["AppSettings:ImageLibrary"];
             settings.ClientUrl = Configuration["AppSettings:ClientUrl"];
             return settings;
         }

@@ -20,12 +20,13 @@ namespace MWWebAPI2.Controllers
     public class ToolInventoryController : BaseApiController
     {
         private static AppSettings appSettings = new AppSettings();
-        private static string imageLibrary = "appSettings.ImageLibrary";
+        private static string imageLibrary = string.Empty;
         private static string imageUrl = appSettings.ImageUrl;
         DBToolInventoryRepository ToolInventoryRepo = null;
         public ToolInventoryController(AppSettings _appSettings)
         {
             appSettings = _appSettings;
+            imageLibrary = appSettings.ImageLibrary;
             ToolInventoryRepo = new DBToolInventoryRepository(
             appSettings, null, null, null
         );
@@ -52,6 +53,7 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("GetToolCategoryNames")]
+        [HttpGet]
         public HttpResponseMessage GetToolCategoryNames()
         {
             using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
@@ -73,7 +75,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("cuttingmethodtemplate/update")]
         [HttpPost]
-        public IActionResult UpdateCuttingMethodTemplate(CuttingMethodTemplate cuttingMethodTemplate)
+        public IActionResult UpdateCuttingMethodTemplate([FromBody] CuttingMethodTemplate cuttingMethodTemplate)
         {
             DBResponse dbResponse = ToolInventoryRepo.UpdateCuttingMethodTemplate(cuttingMethodTemplate);
             return StatusCode(StatusCodes.Status200OK, new APIResponse
@@ -84,6 +86,7 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("getCuttingMethodtemplate/{cuttingMethod}")]
+        [HttpGet]
         public HttpResponseMessage GetTemplate(string cuttingMethod)
         {
             // URL can't handle period so use | instead
@@ -96,14 +99,18 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("getToolSetupSheet/{id}")]
-        public ToolSetupSheet GetToolSetupSheet(int id)
+        [HttpGet]
+        public HttpResponseMessage GetToolSetupSheet(int id)
         {
-            return ToolInventoryRepo.GetToolSetupSheet(id);
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetToolSetupSheet(id));
+            }
         }
 
         [Route("ToolSetupSheet/Update")]
         [HttpPost]
-        public IActionResult UpdateToolSetupSheet(ToolSetupSheet toolSetupSheet)
+        public IActionResult UpdateToolSetupSheet([FromBody] ToolSetupSheet toolSetupSheet)
         {
             DBResponse dbResponse = ToolInventoryRepo.UpdateToolSetupSheet(toolSetupSheet);
             return StatusCode(StatusCodes.Status200OK, new APIResponse
@@ -115,7 +122,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("AddToolSetupToSetupSheet")]
         [HttpPost]
-        public IActionResult AddToolSetupToSetupSheet(AddToolSetupRequest addToolSetupRequest)
+        public IActionResult AddToolSetupToSetupSheet([FromBody] AddToolSetupRequest addToolSetupRequest)
         {
             DBResponse dbResponse = ToolInventoryRepo.AddToolSetupToSetupSheet(addToolSetupRequest);
             return StatusCode(StatusCodes.Status200OK, new APIResponse
@@ -127,7 +134,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("DeleteConversionRule")]
         [HttpPost]
-        public IActionResult DeleteConversionRule(ConversionRule conversionRule)
+        public IActionResult DeleteConversionRule([FromBody] ConversionRule conversionRule)
         {
 
             DBResponse dbResponse = ToolInventoryRepo.DeleteConversionRule(conversionRule);
@@ -140,7 +147,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("DeleteToolSetup")]
         [HttpPost]
-        public IActionResult DeleteToolSetup(DeleteToolSetupRequest deleteToolSetupRequest)
+        public IActionResult DeleteToolSetup([FromBody] DeleteToolSetupRequest deleteToolSetupRequest)
         {
 
             DBResponse dbResponse = ToolInventoryRepo.DeleteToolSetup(deleteToolSetupRequest);
@@ -153,7 +160,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("SaveToolSetupGroup")]
         [HttpPost]
-        public IActionResult SaveToolSetupGroup(ToolSetupGroupRequest toolSetupGroupRequest)
+        public IActionResult SaveToolSetupGroup([FromBody] ToolSetupGroupRequest toolSetupGroupRequest)
         {
 
             DBResponse dbResponse = ToolInventoryRepo.SaveToolSetupGroup(toolSetupGroupRequest);
@@ -166,7 +173,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("SaveConvertedProgram")]
         [HttpPost]
-        public IActionResult SaveConvertedProgram(ProgramSaveRequest convertProgramSaveRequest)
+        public IActionResult SaveConvertedProgram([FromBody] ProgramSaveRequest convertProgramSaveRequest)
         {
 
             int newSetupSheetID = ToolInventoryRepo.SaveConvertedProgram(convertProgramSaveRequest);
@@ -175,7 +182,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("UploadProvenProgram")]
         [HttpPost]
-        public IActionResult UploadProvenProgram(UploadProgramRequest uploadProgramRequest)
+        public IActionResult UploadProvenProgram([FromBody] UploadProgramRequest uploadProgramRequest)
         {
 
             int newSetupSheetID = ToolInventoryRepo.UploadProvenProgram(uploadProgramRequest);
@@ -184,7 +191,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("SaveProgram")]
         [HttpPost]
-        public IActionResult SaveProgram(ProgramSaveRequest convertProgramSaveRequest)
+        public IActionResult SaveProgram([FromBody] ProgramSaveRequest convertProgramSaveRequest)
         {
             ToolInventoryRepo.SaveProgram(convertProgramSaveRequest);
             return StatusCode(StatusCodes.Status200OK, 0);
@@ -200,67 +207,98 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("GetMachines/{prefix?}")]
-        public IActionResult GetMachines(string prefix = "")
+        public HttpResponseMessage GetMachines(string prefix = "")
         {
             List<string> retPartNumbers = ToolInventoryRepo.GetMachines(prefix);
-            return StatusCode(StatusCodes.Status200OK, retPartNumbers.ToArray());
+
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, retPartNumbers.ToArray());
+            }
         }
 
         [Route("GetLookUpCategories/{searchTerm?}")]
-        public IActionResult GetLookUpCategories(string searchTerm = "")
+        [HttpGet]
+        public HttpResponseMessage GetLookUpCategories(string searchTerm = "")
         {
             List<string> getCategories = ToolInventoryRepo.GetLookUpCategories(searchTerm);
-            return StatusCode(StatusCodes.Status200OK, getCategories.ToArray());
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, getCategories.ToArray());
+            }
         }
 
         [Route("GetSSPPartNumbers/{partId?}")]
-        public IActionResult GetSSPPartNumbers(string partId = "")
+        [HttpGet]
+        public HttpResponseMessage GetSSPPartNumbers(string partId = "")
         {
             List<string> retPartNumbers = ToolInventoryRepo.GetSSPPartNumbers(partId);
             var resultList = retPartNumbers.Where(x => x.IndexOf(partId, StringComparison.OrdinalIgnoreCase) > -1);
-            return StatusCode(StatusCodes.Status200OK, resultList.ToArray());
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, resultList.ToArray());
+            }
         }
 
         [Route("GetMaterialSize/{materialType}/{term}")]
-        public IActionResult GetSSPPartNumbers(string materialType, string term)
+        [HttpGet]
+        public HttpResponseMessage GetSSPPartNumbers(string materialType, string term)
         {
             List<string> retMaterialSize = ToolInventoryRepo.GetMaterialSize(term, materialType);
             var resultList = retMaterialSize.Where(x => x.IndexOf(term, StringComparison.OrdinalIgnoreCase) > -1);
-            return StatusCode(StatusCodes.Status200OK, resultList.ToArray());
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, resultList.ToArray());
+            }
         }
 
         [Route("GetSSPOperations/{partId}/{operation?}")]
-        public IActionResult GetSSPOperations(string partId, string operation = "")
+        [HttpGet]
+        public HttpResponseMessage GetSSPOperations(string partId, string operation = "")
         {
             List<string> retOperations = ToolInventoryRepo.GetSSPOperations(operation, partId);
             var resultList = retOperations.Where(x => x.IndexOf(operation, StringComparison.OrdinalIgnoreCase) > -1);
-            return StatusCode(StatusCodes.Status200OK, resultList.ToArray());
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, resultList.ToArray());
+            }
         }
 
         [Route("GetCuttingMethodTemplate/{cuttingMethod}/{n}")]
-        public IActionResult GetCuttingMethodTemplate(string cuttingMethod, string n)
+        [HttpGet]
+        public HttpResponseMessage GetCuttingMethodTemplate(string cuttingMethod, string n)
         {
             List<string> retTemplate = ToolInventoryRepo.GetCuttingMethodTemplate(cuttingMethod, n);
-            return StatusCode(StatusCodes.Status200OK, retTemplate.ToArray());
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, retTemplate.ToArray());
+            }
         }
 
         [Route("GetSetupSheets/{partNumber}/{revision}/{operation?}")]
-        public IActionResult GetSetupSheets(string partnumber, string revision, string operation = "")
+        [HttpGet]
+        public HttpResponseMessage GetSetupSheets(string partnumber, string revision, string operation = "")
         {
             List<ToolSetupSheetHeader> setupSheetHeaders = ToolInventoryRepo.GetSetupSheets(partnumber, revision, operation);
-            return StatusCode(StatusCodes.Status200OK, setupSheetHeaders);
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, setupSheetHeaders);
+            }
         }
 
         [Route("ConvertProgram")]
         [HttpPost]
-        public IActionResult ConvertProgram(ConvertProgramRequest convertProgramRequest)
+        public HttpResponseMessage ConvertProgram([FromBody] ConvertProgramRequest convertProgramRequest)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.ConvertProgram(convertProgramRequest));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.ConvertProgram(convertProgramRequest));
+            }
         }
 
         [Route("UploadProgram")]
         [HttpPost]
-        public async Task<IActionResult> UploadProgam(IFormFile file)
+        public async Task<IActionResult> UploadProgam([FromBody] IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return Content("file not selected");
@@ -278,9 +316,12 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("GetToolInventoryColumns")]
-        public IActionResult GetToolInventoryColumns(string code)
+        public HttpResponseMessage GetToolInventoryColumns(string code)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetToolInventoryColumns());
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetToolInventoryColumns());
+            }
         }
 
         [Route("GetToolInventoryColumns/{code}")]
@@ -292,68 +333,82 @@ namespace MWWebAPI2.Controllers
 
         [Route("SaveToolInventoryCodeColumns")]
         [HttpPost]
-        public IActionResult SaveToolInventoryCodeColumns(SaveCodeColumnsRequest saveCodeColumnsRequest)
+        public IActionResult SaveToolInventoryCodeColumns([FromBody] SaveCodeColumnsRequest saveCodeColumnsRequest)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.SaveToolInventoryCodeColumns(saveCodeColumnsRequest));
         }
 
         [Route("CopyToolInventoryCodeColumns")]
         [HttpPost]
-        public IActionResult CopyToolInventoryCodeColumns(CopyCodeColumnsRequest copyCodeColumnsRequest)
+        public IActionResult CopyToolInventoryCodeColumns([FromBody] CopyCodeColumnsRequest copyCodeColumnsRequest)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.CopyToolInventoryCodeColumns(copyCodeColumnsRequest));
         }
 
         [Route("GetSelectedToolInventoryColumns/{codes?}")]
-        public IActionResult GetSelectedToolInventoryColumns(string codes = "")
+        [HttpGet]
+        public HttpResponseMessage GetSelectedToolInventoryColumns(string codes = "")
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetSelectedToolInventoryColumns(codes));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetSelectedToolInventoryColumns(codes));
+            }
         }
 
         [Route("GetToolNames")]
         [HttpGet]
-        public IActionResult GetToolNames([FromQuery] LookUpRequest lookUpRequest)
+        public HttpResponseMessage GetToolNames([FromQuery] LookUpRequest lookUpRequest)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetToolNames(lookUpRequest.SearchTerm));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetToolNames(lookUpRequest.SearchTerm));
+            }
         }
 
         [Route("GetSearchableToolInventoryColumns/{codes?}")]
-        public IActionResult GetSearchableToolInventoryColumns(string codes = "")
+        [HttpGet]
+        public HttpResponseMessage GetSearchableToolInventoryColumns(string codes = "")
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetSelectedToolInventoryColumns(codes, true));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetSelectedToolInventoryColumns(codes, true));
+            }
         }
 
         [Route("GetToolDetails/{ToolID}")]
-        public IActionResult GetToolDetails(int ToolID)
+        [HttpGet]
+        public HttpResponseMessage GetToolDetails(int ToolID)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetToolDetails(ToolID));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetToolDetails(ToolID));
+            }
         }
 
         [Route("CopyTool")]
         [HttpPost]
-        public IActionResult CopyTool(ToolInventorySaveRequest copyToolRequest)
+        public IActionResult CopyTool([FromBody] ToolInventorySaveRequest copyToolRequest)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.CopyTool(copyToolRequest.ID));
         }
 
         [Route("CreateTool")]
         [HttpPost]
-        public IActionResult CreateTool(ToolInventorySaveRequest toolInventorySaveRequest)
+        public IActionResult CreateTool([FromBody] ToolInventorySaveRequest toolInventorySaveRequest)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.CreateTool(toolInventorySaveRequest));
         }
 
-
         [Route("DeleteTool")]
         [HttpPost]
-        public IActionResult DeleteTool(ToolInventorySaveRequest toolInventorySaveRequest)
+        public IActionResult DeleteTool([FromBody] ToolInventorySaveRequest toolInventorySaveRequest)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.DeleteTool(toolInventorySaveRequest.ID));
         }
 
         [Route("SaveToolDetails")]
         [HttpPost]
-        public IActionResult SaveToolDetails(ToolInventorySaveRequest toolInventorySaveRequest)
+        public IActionResult SaveToolDetails([FromBody] ToolInventorySaveRequest toolInventorySaveRequest)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.SaveToolDetails(toolInventorySaveRequest));
         }
@@ -361,54 +416,72 @@ namespace MWWebAPI2.Controllers
 
         [Route("UpdateToolVendor")]
         [HttpPost]
-        public IActionResult UpdateToolVendor(ToolInventorySearchResult toolInventorySearchResult)
+        public IActionResult UpdateToolVendor([FromBody] ToolInventorySearchResult toolInventorySearchResult)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.UpdateToolVendor(toolInventorySearchResult));
         }
 
         [Route("ToolInventorySearch")]
-        [HttpPost]
-        public IActionResult ToolInventorySearch(ToolInventorySearch toolInventorySearch)
+        [HttpGet]
+        public IActionResult ToolInventorySearch([FromBody] ToolInventorySearch toolInventorySearch)
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.ToolInventorySearch(toolInventorySearch));
         }
 
         [Route("GetLookUpCategory")]
-        [HttpPost]
-        public IActionResult GetLookUpCategory(LookupCategorySearch lookupCategorySearch)
+        [HttpGet]
+        public HttpResponseMessage GetLookUpCategory([FromBody] LookupCategorySearch lookupCategorySearch)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetLookUpCategory(lookupCategorySearch));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetLookUpCategory(lookupCategorySearch));
+            }
         }
 
         [Route("GetToolCuttingMethods/{ToolID}/{AllMethods}")]
-        public IActionResult GetToolCuttingMethods(int ToolID, bool allMethods = true)
+        [HttpGet]
+        public HttpResponseMessage GetToolCuttingMethods(int ToolID, bool allMethods = true)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetToolCuttingMethods(ToolID, allMethods));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetToolCuttingMethods(ToolID, allMethods));
+            }
         }
 
         [Route("GetVendors/{categoryID?}/{searchTerm?}")]
-        public IActionResult GetVendors(string searchTerm = "", int categoryID = 0)
+        [HttpGet]
+        public HttpResponseMessage GetVendors(string searchTerm = "", int categoryID = 0)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetVendors(searchTerm, categoryID));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetVendors(searchTerm, categoryID));
+            }
         }
 
         [Route("GetVendorInfo/{ID}")]
-        public IActionResult GetVendorInfo(int ID)
+        [HttpGet]
+        public HttpResponseMessage GetVendorInfo(int ID)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.GetVendorInfo(ID));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetVendorInfo(ID));
+            }
         }
         //public LookupCategories GetLookUpCategory(LookupCategorySearch lookupCategorySearch)
 
         [Route("ToolInventorySearchSelected")]
-        [HttpPost]
-        public IActionResult ToolInventorySearchSelected(ToolInventorySearch toolInventorySearch)
+        [HttpGet]
+        public HttpResponseMessage ToolInventorySearchSelected([FromBody] ToolInventorySearch toolInventorySearch)
         {
-            return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.ToolInventorySearchSelected(toolInventorySearch));
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.ToolInventorySearchSelected(toolInventorySearch));
+            }
         }
 
         [Route("LinkTool")]
         [HttpPost]
-        public IActionResult LinkTool(LinkToolRequest linkToolRequest)
+        public IActionResult LinkTool([FromBody] LinkToolRequest linkToolRequest)
         {
             DBResponse dbResponse = ToolInventoryRepo.LinkTool(linkToolRequest);
             return StatusCode(StatusCodes.Status200OK, new APIResponse
@@ -420,7 +493,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("CheckOutCheckIn")]
         [HttpPost]
-        public IActionResult CheckOutCheckIn(CheckOutCheckInRequest checkOutCheckInRequest)
+        public IActionResult CheckOutCheckIn([FromBody] CheckOutCheckInRequest checkOutCheckInRequest)
         {
             DBResponse dbResponse = ToolInventoryRepo.CheckOutCheckIn(checkOutCheckInRequest);
             return StatusCode(StatusCodes.Status200OK, new APIResponse
@@ -432,7 +505,7 @@ namespace MWWebAPI2.Controllers
 
         [Route("SaveLookupCategory")]
         [HttpPost]
-        public IActionResult SaveLookupCategory(SaveLookupCategoryRequest saveLookupCategoryRequest)
+        public IActionResult SaveLookupCategory([FromBody] SaveLookupCategoryRequest saveLookupCategoryRequest)
         {
             DBResponse dbResponse = ToolInventoryRepo.SaveLookupCategory(saveLookupCategoryRequest);
             return StatusCode(StatusCodes.Status200OK, new APIResponse
@@ -443,27 +516,33 @@ namespace MWWebAPI2.Controllers
         }
         [Route("UploadToolImage")]
         [HttpPost]
-        public IActionResult UploadToolImage()
+        public async Task<IActionResult> UploadToolImage()
         {
-            /*
-            if (HttpContext.Current.Request.Files.AllKeys.Any())
+
+            var httpPostedFile = HttpContext.Request.Form.Files["toolImage"];
+
+            if (httpPostedFile != null)
             {
-                // Get the uploaded image from the Files collection
-                var httpPostedFile = HttpContext.Current.Request.Files["UploadedImage"];
+                int toolID = Convert.ToInt32(HttpContext.Request.Form["toolId"]);
+                string fileFormat = httpPostedFile.FileName.Substring(httpPostedFile.FileName.LastIndexOf('.') + 1);
+                string fileName = string.Format("{0}.{1}", toolID, fileFormat);
+                var fileSavePath =
+                    string.Format("{0}\\{1}.{2}", imageLibrary + "", toolID, fileFormat);
 
-                if (httpPostedFile != null)
+                try
                 {
-                    int toolID = Convert.ToInt32(HttpContext.Current.Request["ToolID"]);
-                    string fileFormat = httpPostedFile.FileName.Substring(httpPostedFile.FileName.LastIndexOf('.')+1);
-                    string fileName = string.Format("{0}.{1}", toolID, fileFormat);
-                    var fileSavePath = 
-                        string.Format("{0}\\ToolInventory\\{1}.{2}", imageLibrary+"", toolID, fileFormat);
-
-                    httpPostedFile.SaveAs(fileSavePath);
-                    ToolInventoryRepo.SaveToolImageInfo(toolID, fileName);
+                    using (var targetStream = System.IO.File.Create(fileSavePath))
+                    {
+                        await httpPostedFile.CopyToAsync(targetStream);
+                        ToolInventoryRepo.SaveToolImageInfo(toolID, fileName);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }                
             }
-            */
+
             return StatusCode(StatusCodes.Status200OK, "");
         }
     }
