@@ -68,6 +68,7 @@ namespace MWWebAPI2
                 cfg.AddPolicy("CanAccessProducts", p => p.RequireClaim("CanAccessProducts", "true"));
             });
 
+            services.AddMvc().AddWebApiConventions(); //Add WebApi
             services.AddCors();
             services.AddMemoryCache();
             services.AddMvc()
