@@ -18,7 +18,7 @@ namespace MWWebAPI2.DBRepository
     public class DBToolInventoryRepository : IDisposable
     {
         private readonly IConfiguration Configuration;
-        private static AppSettings appSettings;
+        private static AppSettings appSettings = new AppSettings();
         private static IMemoryCache cache;
         private static IHostingEnvironment hostingEnvironment;
         public DBToolInventoryRepository(AppSettings _appSettings,

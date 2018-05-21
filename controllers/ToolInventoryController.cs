@@ -18,14 +18,17 @@ namespace MWWebAPI2.Controllers
     [Route("api")]
     public class ToolInventoryController : BaseApiController
     {
-         private static AppSettings appSettings;       
+         private static AppSettings appSettings= new AppSettings();       
+        private static string imageLibrary = "appSettings.ImageLibrary";
+        private static string imageUrl = appSettings.ImageUrl;
+       DBToolInventoryRepository ToolInventoryRepo = null;
         public ToolInventoryController(AppSettings _appSettings)           
         {
-            appSettings = _appSettings;            
+            appSettings = _appSettings;  
+            ToolInventoryRepo = new DBToolInventoryRepository(
+            appSettings, null, null, null
+        );          
         }
-        private static string imageLibrary = appSettings.ImageLibrary;
-        private static string imageUrl = appSettings.ImageUrl;
-        DBToolInventoryRepository ToolInventoryRepo = new DBToolInventoryRepository();
        
         [Route("SearchToolSetups")]
         [HttpPost]
