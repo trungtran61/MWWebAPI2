@@ -1251,7 +1251,7 @@ namespace MWWebAPI2.DBRepository
                 }
 
             }
-            catch (Exception ex)
+            catch 
             {
                 throw;
             }
@@ -1465,7 +1465,7 @@ namespace MWWebAPI2.DBRepository
                     }
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 throw;
             }
@@ -1859,7 +1859,7 @@ namespace MWWebAPI2.DBRepository
                     newLines.AppendLine(newLine);
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 throw;
             }

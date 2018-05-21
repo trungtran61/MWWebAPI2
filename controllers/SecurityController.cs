@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace MWWebAPI2.Controllers
 {
     [Route("api/security")]
-    [Authorize]
+    //[Authorize]
     public class SecurityController : BaseApiController
     {
         private static string conn;    
