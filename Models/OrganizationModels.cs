@@ -48,5 +48,12 @@ namespace MWWebAPI2.Models
             public int id { get; set; }
             public bool active { get; set; }
         }
+
+        public enum OrganizationType
+        {
+            customer,
+            manufacturer,
+            vendor
+        }
     }
 }

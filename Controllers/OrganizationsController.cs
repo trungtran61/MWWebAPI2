@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MWWebAPI2.Controllers
 {
-    [Route("api/security")]
+    [Route("api/organizations")]
     //[Authorize]
     public class OrganizationsController : BaseApiController
     {
@@ -21,121 +21,34 @@ namespace MWWebAPI2.Controllers
         {
             appSettings = _appSettings;
             conn = appSettings.SecurityConnectionString;            
-            securityInventoryRepo = new DBSecurityRepository(appSettings);
+            organizationsRepo = new DBOrganizationsRepository(appSettings);
         }
         private static AppSettings appSettings;
-        DBSecurityRepository securityInventoryRepo = null;
+        DBOrganizationsRepository organizationsRepo = null;
 
-        [Route("GetUsers")]
+        [Route("GetOrganizations")]
         [HttpGet]
-        public IActionResult GetUsers([FromQuery]SecurityModels.GetListRequest getUsersRequest)
+        public IActionResult GetOrganizations([FromQuery]OrganizationModels.GetOrganizationsRequest getOrganizationsRequest)
         {
-            SecurityModels.GetUsersResponse getUserResponse = securityInventoryRepo.GetUsers(getUsersRequest);
-            return StatusCode(StatusCodes.Status200OK, getUserResponse);
+            OrganizationModels.GetOrganizationsResponse getOrganizationResponse = organizationsRepo.GetOrganizations(getOrganizationsRequest);
+            return StatusCode(StatusCodes.Status200OK, getOrganizationResponse);
         }
 
-        [Route("GetUser")]
+        [Route("GetOrganization")]
         [HttpGet]
-        public IActionResult GetUser(int id)
+        public IActionResult GetOrganization(int id, string type)
         {
-            SecurityModels.User user = securityInventoryRepo.GetUser(id);
-            return StatusCode(StatusCodes.Status200OK, user);
+            OrganizationModels.Organization org = organizationsRepo.GetOrganization(id, type);
+            return StatusCode(StatusCodes.Status200OK, org);
         }
-
-        [Route("GetRoles")]
-        [HttpGet]
-        public IActionResult GetRoles([FromQuery]SecurityModels.GetListRequest getRolesRequest)
-        {
-            SecurityModels.GetRolesResponse getRolesResponse = securityInventoryRepo.GetRoles(getRolesRequest);
-            return StatusCode(StatusCodes.Status200OK, getRolesResponse);
-        }
-
-        [Route("GetRole")]
-        [HttpGet]
-        public IActionResult GetRole(int id)
-        {
-            SecurityModels.Role role = securityInventoryRepo.GetRole(id);
-            return StatusCode(StatusCodes.Status200OK, role);
-        }
-
-        [Route("GetPermission")]
-        [HttpGet]
-        public IActionResult GetPermission(int id)
-        {
-            SecurityModels.Permission permission = securityInventoryRepo.GetPermission(id);
-            return StatusCode(StatusCodes.Status200OK, permission);
-        }
-
-        [Route("GetPermissions")]
-        [HttpGet]
-        public IActionResult GetPermissions([FromQuery]SecurityModels.GetListRequest getPermissionsRequest)
-        {
-            SecurityModels.GetPermissionsResponse getPermissionsResponse = securityInventoryRepo.GetPermissions(getPermissionsRequest);
-            return StatusCode(StatusCodes.Status200OK, getPermissionsResponse);
-        }
-
-        [Route("UpdateUserRoles")]
+        
+        [Route("UpdateOrganizationStatus")]
         [HttpPost]
-        public IActionResult UpdateUserRoles([FromBody]SecurityModels.UpdateUserRolesRequest updateUserRolesRequest)
+        public IActionResult UpdateOrganizationStatus([FromBody]OrganizationModels.Organization organization)
         {
-            securityInventoryRepo.UpdateUserRoles(updateUserRolesRequest);
-            return StatusCode(StatusCodes.Status200OK, "");
-        }
-
-        [Route("UpdateUserStatus")]
-        [HttpPost]
-        public IActionResult UpdateUserStatus([FromBody]SecurityModels.UpdateUserStatusRequest updateUserStatusRequest)
-        {
-            securityInventoryRepo.UpdateUserStatus(updateUserStatusRequest);
-            return StatusCode(StatusCodes.Status200OK, "");
-        }
-
-        [Route("UpdateUserProfile")]
-        [HttpPost]
-        public IActionResult UpdateUserProfile([FromBody]SecurityModels.User user)
-        {
-            user.id = securityInventoryRepo.UpdateUserProfile(user);
-            return StatusCode(StatusCodes.Status200OK, user.id);
-        }
-
-        [Route("UpdateRole")]
-        [HttpPost]
-        public IActionResult UpdateRole([FromBody]SecurityModels.Role role)
-        {
-            try
-            {
-                role.id = securityInventoryRepo.UpdateRole(role);
-                return StatusCode(StatusCodes.Status200OK, role.id);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
-            }
-        }
-
-        [Route("UpdateRoleStatus")]
-        [HttpPost]
-        public IActionResult UpdateRoleStatus([FromBody]SecurityModels.Role permission)
-        {
-            securityInventoryRepo.UpdateRoleStatus(permission);
-            return StatusCode(StatusCodes.Status200OK, permission);
-        }
-
-        [Route("UpdatePermission")]
-        [HttpPost]
-        public IActionResult UpdatePermission([FromBody]SecurityModels.Permission permission)
-        {
-            permission.id = securityInventoryRepo.UpdatePermission(permission);
-            return StatusCode(StatusCodes.Status200OK, permission.id);
-        }
-
-        [Route("UpdatePermissionStatus")]
-        [HttpPost]
-        public IActionResult UpdatePermissionStatus([FromBody]SecurityModels.Permission permission)
-        {
-            securityInventoryRepo.UpdatePermissionStatus(permission);
-            return StatusCode(StatusCodes.Status200OK, permission);
-        }
+            organizationsRepo.UpdateOrganizationStatus(organization);
+            return StatusCode(StatusCodes.Status200OK, organization);
+        }        
         
     }
 }
