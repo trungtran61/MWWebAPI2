@@ -545,5 +545,12 @@ namespace MWWebAPI2.Controllers
 
             return StatusCode(StatusCodes.Status200OK, "");
         }
+
+        [Route("AddOrder")]
+        [HttpPost]
+        public IActionResult AddOrder([FromBody] Order order)
+        {
+            return StatusCode(StatusCodes.Status200OK, "");
+        }
     }
 }

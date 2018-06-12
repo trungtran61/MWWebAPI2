@@ -9,9 +9,11 @@ namespace MWWebAPI2.Models
     {
         public class Organization
         {
-            public string type { get; set; }
+            public string orgType { get; set; }
             public int id { get; set; }
             public string name { get; set; }
+            public string type { get; set; }
+            
             public string address { get; set; }
             public string city { get; set; }
             public string state { get; set; }
@@ -26,6 +28,7 @@ namespace MWWebAPI2.Models
 
         public class GetOrganizationsRequest
         {
+             public string orgType { get; set; } = "";
             public string typeParm { get; set; } = "";
             public string nameParm { get; set; } = "";
             public string addressParm { get; set; } = "";

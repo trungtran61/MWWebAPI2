@@ -30,9 +30,10 @@ namespace MWWebAPI2.DBRepository
 
             using (SqlConnection con = new SqlConnection(MWConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand("GetUsers", con))
+                using (SqlCommand cmd = new SqlCommand("GetOrganizations", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@orgType", SqlDbType.VarChar, 20).Value = getOrganizationsRequest.orgType;
                     cmd.Parameters.Add("@nameParm", SqlDbType.VarChar, 50).Value = getOrganizationsRequest.nameParm;
                     cmd.Parameters.Add("@typeParm", SqlDbType.VarChar, 20).Value = getOrganizationsRequest.typeParm;
                     cmd.Parameters.Add("@addressParm", SqlDbType.VarChar, 50).Value = getOrganizationsRequest.addressParm;
@@ -66,7 +67,7 @@ namespace MWWebAPI2.DBRepository
             return getOrganizationsResponse;
         }
 
-        public Organization GetOrganization(int id, string type)
+        public Organization GetOrganization(int id, string orgType)
         {
             Organization org = new Organization();
 
@@ -76,7 +77,7 @@ namespace MWWebAPI2.DBRepository
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
-                    cmd.Parameters.Add("@Type", SqlDbType.VarChar, 20).Value = type;
+                    cmd.Parameters.Add("@OrgType", SqlDbType.VarChar, 20).Value = orgType;
                     con.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -113,7 +114,7 @@ namespace MWWebAPI2.DBRepository
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@Id", SqlDbType.Int).Value = org.id;
-                        cmd.Parameters.Add("@Type", SqlDbType.Int).Value = org.type;
+                        cmd.Parameters.Add("@OrgType", SqlDbType.VarChar,20).Value = org.orgType;
                         cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = org.active;
                         con.Open();
                         cmd.ExecuteNonQuery();
