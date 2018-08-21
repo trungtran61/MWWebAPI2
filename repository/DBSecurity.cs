@@ -50,7 +50,7 @@ namespace MWWebAPI2.DBRepository
                 con.Close();
             }
 
-            if (user != null)
+            if (user.userName != null)
             {
                 // Build User Security Object
                 userAuth = BuildUserAuthObject(user);

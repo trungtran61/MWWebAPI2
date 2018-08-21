@@ -9,6 +9,7 @@ using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 
 namespace MWWebAPI2.Controllers
 {
@@ -16,11 +17,11 @@ namespace MWWebAPI2.Controllers
     //[Authorize]
     public class SecurityController : BaseApiController
     {
-        private static string conn;    
+        private static string conn;
         public SecurityController(AppSettings _appSettings)
         {
             appSettings = _appSettings;
-            conn = appSettings.SecurityConnectionString;            
+            conn = appSettings.SecurityConnectionString;
             securityInventoryRepo = new DBSecurityRepository(appSettings);
         }
         private static AppSettings appSettings;
@@ -138,17 +139,19 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("ValidateUser")]
-        [HttpPost]         
-        public IActionResult ValidateUser([FromBody]SecurityModels.UserAuthRequest userAuthRequest)
+        [HttpPost]
+        public HttpResponseMessage ValidateUser([FromBody]SecurityModels.UserAuthRequest userAuthRequest)
         {
-            SecurityModels.UserAuth userAuth = new SecurityModels.UserAuth();
-            userAuth = securityInventoryRepo.ValidateUser(userAuthRequest);
+            using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
+            {
+                SecurityModels.UserAuth userAuth = new SecurityModels.UserAuth();
+                userAuth = securityInventoryRepo.ValidateUser(userAuthRequest);
 
-            if (userAuth.isAuthenticated)
-                return StatusCode(StatusCodes.Status200OK, userAuth);
-            else
-                return StatusCode(StatusCodes.Status404NotFound, "Invalid Username/Password.");
-
+                if (userAuth.isAuthenticated)
+                    return request.CreateResponse(HttpStatusCode.OK, userAuth);
+                else
+                    return request.CreateResponse(HttpStatusCode.BadRequest, "Invalid Username/Password.");
+            }
         }
     }
 }

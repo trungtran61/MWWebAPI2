@@ -23,13 +23,14 @@ namespace MWWebAPI2.Controllers
         private static string imageLibrary = string.Empty;
         private static string imageUrl = appSettings.ImageUrl;
         DBToolInventoryRepository ToolInventoryRepo = null;
+        DBSecurityRepository securityInventoryRepo = null;
+
         public ToolInventoryController(AppSettings _appSettings)
         {
             appSettings = _appSettings;
             imageLibrary = appSettings.ImageLibrary;
-            ToolInventoryRepo = new DBToolInventoryRepository(
-            appSettings, null, null, null
-        );
+            ToolInventoryRepo = new DBToolInventoryRepository(appSettings, null, null, null);
+            securityInventoryRepo = new DBSecurityRepository(appSettings);
         }
 
         [Route("SearchToolSetups")]
@@ -429,7 +430,7 @@ namespace MWWebAPI2.Controllers
         }
 
         [Route("GetLookUpCategory")]
-        [HttpGet]
+        [HttpPost]
         public HttpResponseMessage GetLookUpCategory([FromBody] LookupCategorySearch lookupCategorySearch)
         {
             using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
@@ -437,7 +438,7 @@ namespace MWWebAPI2.Controllers
                 return request.CreateResponse(HttpStatusCode.OK, ToolInventoryRepo.GetLookUpCategory(lookupCategorySearch));
             }
         }
-
+        
         [Route("GetToolCuttingMethods/{ToolID}/{AllMethods}")]
         [HttpGet]
         public HttpResponseMessage GetToolCuttingMethods(int ToolID, bool allMethods = true)
@@ -540,7 +541,7 @@ namespace MWWebAPI2.Controllers
                 catch (Exception ex)
                 {
                     throw ex;
-                }                
+                }
             }
 
             return StatusCode(StatusCodes.Status200OK, "");
