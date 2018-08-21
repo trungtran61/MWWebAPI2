@@ -137,8 +137,11 @@ namespace MWWebAPI2.DBRepository
             }
             return cuttingMethodTemplates;
         }
-        public List<Lookup> GetLookupByCategory(string category, string term)
+        public List<Lookup> GetLookupByCategory(string category, string term="")
         {
+            if (term == null)            
+                term  = string.Empty;
+                
             List<Lookup> lookups = new List<Lookup>();
 
             using (SqlConnection conn = new SqlConnection(appSettings.MWConnectionString))
