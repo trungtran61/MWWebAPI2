@@ -163,7 +163,9 @@ namespace MWWebAPI2.DBRepository
                             {
                                 Id = Convert.ToInt32(rdLookup["HID"].ToString()),
                                 Text = rdLookup["mText"].ToString(),
-                                Value = rdLookup["mValue"].ToString()
+                                Value = rdLookup["mValue"].ToString(),
+                                name = rdLookup["mText"].ToString(),
+                                id = rdLookup["mValue"].ToString()
                             };
                             lookups.Add(lookup);
                         }

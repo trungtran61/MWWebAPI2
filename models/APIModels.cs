@@ -13,6 +13,8 @@ namespace MWWebAPI2.Models
         public string Category { get; set; }
         public bool active { get; set; }
         public string Sequence { get; set; }
+        public string name { get; set; }
+public string id { get; set; }
     }
 
     public class APIResponse

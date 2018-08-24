@@ -12,11 +12,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MWWebAPI2.Controllers
 {
-    //[Authorize]
     [Route("api")]
+    [Authorize ()]
     public class ToolInventoryController : BaseApiController
     {
         private static AppSettings appSettings = new AppSettings();

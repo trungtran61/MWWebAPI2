@@ -23,9 +23,8 @@ namespace MWWebAPI2.Controllers
             appSettings = _appSettings;
             conn = appSettings.SecurityConnectionString;            
             securityInventoryRepo = new DBSecurityRepository(appSettings);
-        }
+        }        
         
-        /*
         [Route("ValidateUser")]
         [HttpPost]         
         public IActionResult ValidateUser([FromBody]SecurityModels.UserAuthRequest userAuthRequest)
@@ -38,7 +37,6 @@ namespace MWWebAPI2.Controllers
             else
                 return StatusCode(StatusCodes.Status404NotFound, "Invalid Username/Password.");
 
-        }
-        */
+        }        
     }
 }

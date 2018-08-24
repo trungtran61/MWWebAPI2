@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -61,13 +63,14 @@ namespace MWWebAPI2
                          settings.JWTMinutesToExpiration)
               };
             });
-
+      
+/*
             services.AddAuthorization(cfg =>
             {
                 // NOTE: The claim type and value are case-sensitive
                 cfg.AddPolicy("CanAccessProducts", p => p.RequireClaim("CanAccessProducts", "true"));
             });
-
+*/
             services.AddMvc().AddWebApiConventions(); //Add WebApi
             services.AddCors();
             services.AddMemoryCache();
@@ -109,7 +112,6 @@ namespace MWWebAPI2
             );
 
             app.UseAuthentication();
-
             app.UseMvc();
         }
 
@@ -129,6 +131,7 @@ namespace MWWebAPI2
             settings.ClientUrl = Configuration["AppSettings:ClientUrl"];
             return settings;
         }
+
 
     }
 }

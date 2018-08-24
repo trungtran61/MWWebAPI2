@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 namespace MWWebAPI2.Controllers
 {
     [Route("api/security")]
-    //[Authorize]
+    [Authorize]
     public class SecurityController : BaseApiController
     {
         private static string conn;
@@ -137,7 +137,7 @@ namespace MWWebAPI2.Controllers
             securityInventoryRepo.UpdatePermissionStatus(permission);
             return StatusCode(StatusCodes.Status200OK, permission);
         }
-
+/*
         [Route("ValidateUser")]
         [HttpPost]
         public HttpResponseMessage ValidateUser([FromBody]SecurityModels.UserAuthRequest userAuthRequest)
@@ -153,5 +153,6 @@ namespace MWWebAPI2.Controllers
                     return request.CreateResponse(HttpStatusCode.BadRequest, "Invalid Username/Password.");
             }
         }
-    }
+        */
+    }    
 }
