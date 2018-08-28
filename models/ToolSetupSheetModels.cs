@@ -340,6 +340,7 @@ namespace MWWebAPI2.Models
         public string StationNumber { get; set; }
         public string OrderApproved { get; set; }
         public string Width { get; set; }
+        public string MWHID { get; set; }
         public List<LinkedTool> LinkedTools { get; set; }
         public VendorInfo VendorInfo { get; set; }
     }
@@ -455,24 +456,5 @@ namespace MWWebAPI2.Models
         public string TollFree { get; set; }
         public string Email { get; set; }
         public string Website { get; set; }
-    }
-
-    public class Order
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-        public string phone { get; set; }
-        public DateTime pickUpTime { get; set; }
-        public DateTime pickUpDate { get; set; }
-        public OrderItem[] orderItems { get; set; }
-    }
-
-    public class OrderItem
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-        public int qty { get; set; }
-        public decimal price { get; set; }
-        public string instructions { get; set; }
     }
 }
