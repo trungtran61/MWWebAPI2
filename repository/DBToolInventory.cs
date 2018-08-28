@@ -137,11 +137,8 @@ namespace MWWebAPI2.DBRepository
             }
             return cuttingMethodTemplates;
         }
-        public List<Lookup> GetLookupByCategory(string category, string term="")
+        public List<Lookup> GetLookupByCategory(string category, string term)
         {
-            if (term == null)            
-                term  = string.Empty;
-                
             List<Lookup> lookups = new List<Lookup>();
 
             using (SqlConnection conn = new SqlConnection(appSettings.MWConnectionString))
@@ -164,8 +161,8 @@ namespace MWWebAPI2.DBRepository
                                 Id = Convert.ToInt32(rdLookup["HID"].ToString()),
                                 Text = rdLookup["mText"].ToString(),
                                 Value = rdLookup["mValue"].ToString(),
-                                name = rdLookup["mText"].ToString(),
-                                id = rdLookup["mValue"].ToString()
+                                id =  rdLookup["mValue"].ToString(),
+                                name = rdLookup["mText"].ToString()
                             };
                             lookups.Add(lookup);
                         }
@@ -176,7 +173,7 @@ namespace MWWebAPI2.DBRepository
         }
 
         //GetToolCategoryNames
-        public List<Lookup> GetToolCategoryNames()
+        public List<Lookup> GetToolCategoryNames(string searchTerm)
         {
             List<Lookup> lookups = new List<Lookup>();
 
@@ -186,6 +183,7 @@ namespace MWWebAPI2.DBRepository
                 {
                     cmd.CommandText = "GetToolCategoryNames";
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@searchTerm", SqlDbType.VarChar, 50).Value = searchTerm;
                     cmd.Connection = conn;
                     conn.Open();
 
@@ -443,11 +441,13 @@ namespace MWWebAPI2.DBRepository
                     cmd.Parameters.Add("@ID", SqlDbType.Int).Value = toolInventorySaveRequest.ID;
                     cmd.Parameters.Add("@Angle", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.Angle;
                     cmd.Parameters.Add("@CategoryID", SqlDbType.Int).Value = toolInventorySaveRequest.CategoryID;
-                    cmd.Parameters.Add("@CheckedOut", SqlDbType.Int).Value = toolInventorySaveRequest.CheckedOut;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.CheckedOut))
+                        cmd.Parameters.Add("@CheckedOut", SqlDbType.Int).Value = toolInventorySaveRequest.CheckedOut;
                     cmd.Parameters.Add("@ChipBreaker", SqlDbType.NVarChar, 200).Value = toolInventorySaveRequest.ChipBreaker;
                     cmd.Parameters.Add("@Code", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.Code;
                     cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 510).Value = toolInventorySaveRequest.Comment;
-                    cmd.Parameters.Add("@CuttingMethodIDs", SqlDbType.VarChar).Value =
+                    if (toolInventorySaveRequest.CuttingMethodID != null)
+                        cmd.Parameters.Add("@CuttingMethodIDs", SqlDbType.VarChar).Value =
                             string.Join(",", toolInventorySaveRequest.CuttingMethodID);
                     cmd.Parameters.Add("@Description", SqlDbType.VarChar, 1000).Value = toolInventorySaveRequest.Description;
                     cmd.Parameters.Add("@Diameter", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.Diameter;
@@ -456,9 +456,10 @@ namespace MWWebAPI2.DBRepository
                     cmd.Parameters.Add("@FluteLength", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.FluteLength;
                     cmd.Parameters.Add("@Grade", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.Grade;
                     cmd.Parameters.Add("@ImageCode", SqlDbType.NVarChar, 40).Value = toolInventorySaveRequest.ImageCode;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.InventoryLevel))
                     cmd.Parameters.Add("@InventoryLevel", SqlDbType.Decimal).Value = toolInventorySaveRequest.InventoryLevel;
 
-                    if (toolInventorySaveRequest.isLocked == "on")
+                    if (toolInventorySaveRequest.isLocked == "true")
                         cmd.Parameters.Add("@isLocked", SqlDbType.Bit).Value = 1;
                     else
                         cmd.Parameters.Add("@isLocked", SqlDbType.Bit).Value = 0;
@@ -476,20 +477,26 @@ namespace MWWebAPI2.DBRepository
                     if (!string.IsNullOrEmpty(toolInventorySaveRequest.NewAppDate))
                         cmd.Parameters.Add("@NewAppDate", SqlDbType.DateTime).Value = toolInventorySaveRequest.NewAppDate;
                     cmd.Parameters.Add("@NumOfCutters", SqlDbType.Int).Value = toolInventorySaveRequest.NumOfCutters;
-                    cmd.Parameters.Add("@NumOfFlutes", SqlDbType.Int).Value = toolInventorySaveRequest.NumOfFlutes;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.NumOfFlutes))
+                        cmd.Parameters.Add("@NumOfFlutes", SqlDbType.Int).Value = toolInventorySaveRequest.NumOfFlutes;
                     cmd.Parameters.Add("@OAL", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.OAL;
-                    cmd.Parameters.Add("@OnHand", SqlDbType.Decimal).Value = toolInventorySaveRequest.OnHand;
-                    cmd.Parameters.Add("@OrderApproved", SqlDbType.Int).Value = toolInventorySaveRequest.OrderApproved;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.OnHand))
+                        cmd.Parameters.Add("@OnHand", SqlDbType.Decimal).Value = toolInventorySaveRequest.OnHand;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.OrderApproved))
+                        cmd.Parameters.Add("@OrderApproved", SqlDbType.Int).Value = toolInventorySaveRequest.OrderApproved;
                     cmd.Parameters.Add("@OrderPoint", SqlDbType.Decimal).Value = toolInventorySaveRequest.OrderPoint;
-                    cmd.Parameters.Add("@PackSize", SqlDbType.Decimal).Value = toolInventorySaveRequest.PackSize;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.PackSize))
+                        cmd.Parameters.Add("@PackSize", SqlDbType.Decimal).Value = toolInventorySaveRequest.PackSize;
                     if (!string.IsNullOrEmpty(toolInventorySaveRequest.POID))
                         cmd.Parameters.Add("@POID", SqlDbType.Int).Value = toolInventorySaveRequest.POID;
                     cmd.Parameters.Add("@Radius", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.Radius;
                     cmd.Parameters.Add("@ShankDiameter", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.ShankDiameter;
-                    cmd.Parameters.Add("@NeckDiameter", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.NeckDiameter;
+                    //cmd.Parameters.Add("@NeckDiameter", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.NeckDiameter;
                     cmd.Parameters.Add("@StationNumber", SqlDbType.VarChar, 20).Value = toolInventorySaveRequest.StationNumber;
-                    cmd.Parameters.Add("@StatusID", SqlDbType.Int).Value = toolInventorySaveRequest.StatusID;
-                    cmd.Parameters.Add("@ToolGroupNumber", SqlDbType.Int).Value = toolInventorySaveRequest.ToolGroupNumber;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.StatusID))
+                        cmd.Parameters.Add("@StatusID", SqlDbType.Int).Value = toolInventorySaveRequest.StatusID;
+                    if (!string.IsNullOrEmpty(toolInventorySaveRequest.ToolGroupNumber))
+                        cmd.Parameters.Add("@ToolGroupNumber", SqlDbType.Int).Value = toolInventorySaveRequest.ToolGroupNumber;
                     cmd.Parameters.Add("@Unit", SqlDbType.VarChar, 50).Value = toolInventorySaveRequest.Unit;
                     cmd.Parameters.Add("@UnitPrice", SqlDbType.Money).Value = toolInventorySaveRequest.UnitPrice;
                     if (!string.IsNullOrEmpty(toolInventorySaveRequest.VendorID))
@@ -497,6 +504,7 @@ namespace MWWebAPI2.DBRepository
                     cmd.Parameters.Add("@Width", SqlDbType.NVarChar, 100).Value = toolInventorySaveRequest.Width;
                     cmd.Connection = conn;
                     conn.Open();
+                    //var s = cmd.ExecuteScalar();
                     toolInventorySaveRequest.ID = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
@@ -734,7 +742,8 @@ namespace MWWebAPI2.DBRepository
                                 InventoryLevel = reader["InventoryLevel"].ToString(),
                                 ToolGroupNumber = reader["ToolGroupNumber"].ToString(),
                                 UnitPrice = reader["UnitPrice"].ToString(),
-                                PackSize = reader["PackSize"].ToString()
+                                PackSize = reader["PackSize"].ToString(),
+                                MWHID = reader["MWHID"].ToString()
                             }
                             );
                         }
@@ -893,7 +902,8 @@ namespace MWWebAPI2.DBRepository
                                 UISize = Convert.ToInt16(reader["UISize"].ToString()),
                                 PropertyName = reader["PropertyName"].ToString(),
                                 Required = (reader.GetBoolean(reader.GetOrdinal("Required")) ? "required" : ""),
-                                Display = (reader.GetBoolean(reader.GetOrdinal("Display")))
+                                Display = (reader.GetBoolean(reader.GetOrdinal("Display"))),
+                                Searchable =  (reader.GetBoolean(reader.GetOrdinal("Searchable")))
                             };
                             toolInventoryColumns.Add(toolInventoryColumn);
                         }

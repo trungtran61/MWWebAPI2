@@ -12,10 +12,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MWWebAPI2.Controllers
 {
-    //[Authorize]
+    // [Authorize] -- commented out for testing
     [Route("api")]
     public class ToolInventoryController : BaseApiController
     {
@@ -228,6 +229,7 @@ namespace MWWebAPI2.Controllers
             }
         }
 
+
         [Route("GetSSPPartNumbers/{partId?}")]
         [HttpGet]
         public HttpResponseMessage GetSSPPartNumbers(string partId = "")
@@ -427,9 +429,9 @@ namespace MWWebAPI2.Controllers
         {
             return StatusCode(StatusCodes.Status200OK, ToolInventoryRepo.ToolInventorySearch(toolInventorySearch));
         }
-
+        
         [Route("GetLookUpCategory")]
-        [HttpGet]
+        [HttpPost]
         public HttpResponseMessage GetLookUpCategory([FromBody] LookupCategorySearch lookupCategorySearch)
         {
             using (HttpRequestMessage request = HttpRequestMessageHttpContextExtensions.GetHttpRequestMessage(HttpContext))
